@@ -1,191 +1,174 @@
 #!/usr/bin/env python3
 """
-🧠 HyperCode REPL (Read-Eval-Print-Loop)
-Interactive development environment for neurodivergent minds
-<100ms feedback loops for ADHD brains
+🧠 HyperCode REPL
+Interactive Read-Eval-Print Loop
+
+Supports all HyperCode operations:
+- Variables, conditionals, loops, functions
+- Fast <100ms feedback
+- ND-friendly error messages
+- History support
 """
 
 import sys
-import time
-sys.path.insert(0, '.')
+from hypercode_interpreter_v2 import (
+    Tokenizer, Parser, Executor, SyntaxError as HCSyntaxError
+)
 
-from hypercode_interpreter import tokenize, parse, execute
-
-class HyperCodeREPL:
+class REPL:
+    """Interactive HyperCode environment"""
+    
     def __init__(self):
-        self.variables = {}
-        self.functions = {}
+        self.executor = Executor()
         self.history = []
-        self.start_time = time.time()
-    
-    def format_time(self):
-        """Get current time for REPL"""
-        elapsed = time.time() - self.start_time
-        return elapsed
-    
-    def print_welcome(self):
-        """Print welcome message"""
-        print("\n" + "="*60)
-        print("🧠 HyperCode REPL v0.9-beta")
-        print("="*60)
-        print("✨ Neurodivergent-first interactive programming")
-        print()
-        print("Commands:")
-        print("  help      → Show all commands")
-        print("  vars      → List all variables")
-        print("  funcs     → List all functions")
-        print("  clear     → Clear all variables")
-        print("  history   → Show command history")
-        print("  exit      → Quit REPL")
-        print()
-        print("Start typing HyperCode:")
-        print("="*60 + "\n")
-    
-    def execute_code(self, code):
-        """Execute HyperCode with error handling"""
-        try:
-            # Add semicolon if missing
-            if not code.strip().endswith(';'):
-                code = code.strip() + ';'
-            
-            # Tokenize
-            tokens = tokenize(code)
-            
-            # Parse
-            ast = parse(tokens)
-            
-            # Execute
-            result = execute(ast, self.variables)
-            
-            # Store in history
-            self.history.append(code)
-            
-            # Return result
-            return result, None
-        
-        except SyntaxError as e:
-            return None, f"❌ Syntax Error: {str(e)}\n   Tip: Check your brackets, quotes, and semicolons"
-        except NameError as e:
-            return None, f"❌ Name Error: {str(e)}\n   Tip: Variable not defined. Use 'vars' to see all variables"
-        except TypeError as e:
-            return None, f"❌ Type Error: {str(e)}\n   Tip: Wrong type for this operation"
-        except Exception as e:
-            return None, f"❌ Error: {str(e)}"
-    
-    def cmd_help(self):
-        """Show help"""
-        print("""
-╔════════════════════════════════════════════════════════════╗
-║                    HYPERCODE REPL HELP                    ║
-╠════════════════════════════════════════════════════════════╣
-║ BASIC COMMANDS                                             ║
-║  print "text"      → Output text                           ║
-║  let x = 5         → Create variable                       ║
-║  print x           → Use variable                          ║
-║  if x > 3 print x  → Conditional                           ║
-║                                                            ║
-║ REPL COMMANDS                                              ║
-║  help              → Show this message                     ║
-║  vars              → Show all variables                    ║
-║  funcs             → Show all functions                    ║
-║  clear             → Clear all variables                   ║
-║  history           → Show recent commands                  ║
-║  exit              → Quit REPL                             ║
-║                                                            ║
-║ EXAMPLES                                                   ║
-║  print "Hello!";                                           ║
-║  let name = "Alex";                                        ║
-║  let age = 25;                                             ║
-║  print name;                                               ║
-║  print age;                                                ║
-╚════════════════════════════════════════════════════════════╝
-        """)
-    
-    def cmd_vars(self):
-        """Show variables"""
-        if not self.variables:
-            print("📭 No variables defined yet")
-            return
-        
-        print("\n📊 Variables:")
-        for name, value in self.variables.items():
-            if not name.startswith('_'):  # Skip internal vars
-                print(f"  {name} = {value}")
-        print()
-    
-    def cmd_history(self):
-        """Show recent commands"""
-        if not self.history:
-            print("📭 No history yet")
-            return
-        
-        print("\n📜 Recent commands:")
-        for i, cmd in enumerate(self.history[-10:], 1):
-            print(f"  {i}. {cmd}")
-        print()
-    
-    def cmd_clear(self):
-        """Clear all variables"""
-        self.variables = {}
-        print("✨ Cleared all variables")
+        self.session_vars = {}  # Track variables across commands
+        self.session_funcs = {}  # Track functions across commands
     
     def run(self):
-        """Main REPL loop"""
-        self.print_welcome()
+        """Start interactive session"""
+        print("🧠 HyperCode REPL v0.9")
+        print("Neurodivergent-first programming")
+        print()
+        print("Commands:")
+        print("  help     - Show syntax help")
+        print("  history  - Show command history")
+        print("  clear    - Clear variables")
+        print("  exit     - Quit")
+        print()
+        print("Start coding: ")
+        print()
         
         while True:
             try:
-                # Prompt (minimal for ADHD focus)
-                line = input(">>> ").strip()
+                code = input(">>> ").strip()
                 
-                # Skip empty lines
-                if not line:
+                # Special commands
+                if code == "help":
+                    self.show_help()
                     continue
                 
-                # Handle commands
-                if line.lower() == 'exit':
-                    print("\n👋 Goodbye! Keep coding. 💓\n")
+                elif code == "history":
+                    self.show_history()
+                    continue
+                
+                elif code == "clear":
+                    self.executor = Executor()
+                    print("✅ Cleared all variables and functions")
+                    continue
+                
+                elif code in ("exit", "quit"):
+                    print("👋 Goodbye! Keep coding. 💓")
                     break
                 
-                if line.lower() == 'help':
-                    self.cmd_help()
-                    continue
-                
-                if line.lower() == 'vars':
-                    self.cmd_vars()
-                    continue
-                
-                if line.lower() == 'history':
-                    self.cmd_history()
-                    continue
-                
-                if line.lower() == 'clear':
-                    self.cmd_clear()
-                    continue
-                
-                if line.lower() == 'funcs':
-                    if self.functions:
-                        print("\n🔧 Functions:")
-                        for name in self.functions:
-                            print(f"  - {name}")
-                        print()
-                    else:
-                        print("📭 No functions defined yet\n")
+                elif code == "":
                     continue
                 
                 # Execute code
-                result, error = self.execute_code(line)
-                
-                if error:
-                    print(error)
-                elif result is not None:
-                    print(f"=> {result}")
+                self.execute_line(code)
+                self.history.append(code)
             
             except KeyboardInterrupt:
-                print("\n\n👋 Interrupted. Type 'exit' to quit.\n")
-            except Exception as e:
-                print(f"❌ REPL Error: {str(e)}")
+                print("\n👋 (Interrupted)")
+                continue
+            
+            except EOFError:
+                print("\n👋 Goodbye! Keep coding. 💓")
+                break
+    
+    def execute_line(self, code: str):
+        """Execute single line of code"""
+        # Ensure it ends with semicolon
+        if not code.endswith(';'):
+            code += ';'
+        
+        try:
+            # Tokenize
+            tokenizer = Tokenizer(code)
+            tokens = tokenizer.tokenize()
+            
+            # Parse
+            parser = Parser(tokens)
+            ast = parser.parse()
+            
+            # Execute
+            if ast['statements']:
+                for stmt in ast['statements']:
+                    self.executor.execute_statement(stmt)
+        
+        except (SyntaxError, HCSyntaxError) as e:
+            print(f"❌ Syntax Error: {e}")
+            print("   Tip: Check brackets, semicolons, and spelling")
+        
+        except NameError as e:
+            print(f"❌ Name Error: {e}")
+            print("   Tip: Use 'let name = value;' to create a variable")
+        
+        except TypeError as e:
+            print(f"❌ Type Error: {e}")
+            print("   Tip: Make sure numbers are numbers, strings are strings")
+        
+        except ValueError as e:
+            print(f"❌ Value Error: {e}")
+            print("   Tip: Check your calculation or data type")
+        
+        except ZeroDivisionError:
+            print(f"❌ Can't divide by zero!")
+            print("   Tip: Check your division operation")
+        
+        except Exception as e:
+            print(f"❌ Error: {type(e).__name__}: {e}")
+    
+    def show_help(self):
+        """Show syntax help"""
+        print("📖 HyperCode Syntax Reference")
+        print()
+        print("VARIABLES:")
+        print("  let x = 10;")
+        print("  let name = \"Alex\";")
+        print()
+        print("PRINTING:")
+        print("  print \"Hello!\";")
+        print("  print x;")
+        print()
+        print("MATH:")
+        print("  let sum = 5 + 3;")
+        print("  let product = 4 * 2;")
+        print()
+        print("CONDITIONALS:")
+        print("  if x > 5 print \"big\";")
+        print("  if x == 10 { print \"ten\"; }")
+        print()
+        print("LOOPS:")
+        print("  loop(5) { print \"hi\"; }")
+        print()
+        print("FUNCTIONS:")
+        print("  function greet(name) { print name; }")
+        print("  greet(\"Alex\");")
+        print()
+        print("COMPARISONS:")
+        print("  ==  equal")
+        print("  !=  not equal")
+        print("  <   less than")
+        print("  >   greater than")
+        print("  <=  less than or equal")
+        print("  >=  greater than or equal")
+        print()
+    
+    def show_history(self):
+        """Show command history"""
+        if not self.history:
+            print("No history yet.")
+            return
+        
+        print("📑 Command History:")
+        for i, cmd in enumerate(self.history, 1):
+            print(f"  {i}. {cmd}")
+        print()
+
+def main():
+    """Start REPL"""
+    repl = REPL()
+    repl.run()
 
 if __name__ == '__main__':
-    repl = HyperCodeREPL()
-    repl.run()
+    main()
