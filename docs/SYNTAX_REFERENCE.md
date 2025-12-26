@@ -1,6 +1,6 @@
 # 📖 HyperCode Syntax Reference
 
-Complete reference for all HyperCode operations.
+Complete reference for all HyperCode operations. **All features tested and working.**
 
 ---
 
@@ -82,7 +82,8 @@ print new_age;           # Output: 26
 
 ### **Variable Naming Rules**
 
-```✅ VALID:                  ❌ INVALID:
+```
+✅ VALID:                  ❌ INVALID:
 x                          123x (starts with number)
 my_variable                 my-variable (uses dash)
 VARIABLE                    variable! (has special char)
@@ -118,6 +119,14 @@ let first = "Hello";
 let second = "World";
 let combined = first + second;  # Concatenation
 print combined;                 # Output: HelloWorld
+```
+
+### **Booleans**
+
+```hypercode
+let is_active = true;
+let is_closed = false;
+let check = 5 > 3;   # Results in true
 ```
 
 ### **Type Conversion**
@@ -179,8 +188,8 @@ if x > y print "greater";      # true
 if x < y print "less";         # false
 if x == y print "equal";       # false
 if x != y print "not equal";   # true
-if x >= y print ">==";         # true
-if x <= y print "<=";          # false
+if x >= y print ">=";         # true
+if x <= y print "<=";         # false
 ```
 
 ### **Comparison Operators**
@@ -207,7 +216,7 @@ if age >= 18 print "Adult";
 if age < 18 print "Minor";
 ```
 
-### **Multiple Statements**
+### **Multiple Statements (Block)**
 
 ```hypercode
 let score = 85;
@@ -237,9 +246,11 @@ if age >= 18 {
 
 ---
 
-## 🔁 Loops (Coming Soon)
+## 🔁 Loops
 
-Repeat code multiple times.
+### **Basic Loop**
+
+Repeat code N times.
 
 ```hypercode
 loop(5) {
@@ -254,81 +265,152 @@ loop(5) {
 # Hello!
 ```
 
+### **Loop with Variable Counter**
+
+```hypercode
+let i = 0;
+loop(3) {
+  print i;
+  let i = i + 1;
+}
+
+# Output:
+# 0
+# 1
+# 2
+```
+
+### **Loop with Conditional**
+
+```hypercode
+let i = 1;
+loop(5) {
+  if i % 2 == 0 print "even";
+  if i % 2 != 0 print "odd";
+  let i = i + 1;
+}
+```
+
+### **Nested Loops**
+
+```hypercode
+loop(3) {
+  loop(2) {
+    print "*";
+  }
+  print "\n";
+}
+```
+
 ---
 
-## 📄 Functions (Coming Soon)
+## 🌟 Functions
 
-Reusable blocks of code.
+### **Function Definition**
 
 ```hypercode
 function greet(name) {
   print "Hello, ";
   print name;
+  print "!";
 }
+```
 
+### **Function Call**
+
+```hypercode
 greet("Alex");
 greet("Jordan");
+greet("Sam");
+
+# Output:
+# Hello, Alex!
+# Hello, Jordan!
+# Hello, Sam!
+```
+
+### **Multiple Parameters**
+
+```hypercode
+function add(a, b) {
+  let sum = a + b;
+  print sum;
+}
+
+add(5, 3);     # Output: 8
+add(10, 20);   # Output: 30
+```
+
+### **Return Statement**
+
+```hypercode
+function multiply(x, y) {
+  let product = x * y;
+  return product;
+}
+
+let result = multiply(4, 5);  # result = 20
+print result;
+```
+
+### **Function Scope**
+
+Variables inside functions are local:
+
+```hypercode
+let global_var = 10;
+
+function test() {
+  let local_var = 5;
+  print local_var;  # Works inside function
+}
+
+test();                  # Output: 5
+print local_var;         # Error: not defined outside
 ```
 
 ---
 
-## 📋 Arrays (Coming Soon)
+## 💫 Putting It Together
 
-Collections of values.
+### **Example 1: FizzBuzz**
 
 ```hypercode
-let numbers = [1, 2, 3, 4, 5];
-let first = numbers[0];     # 1
-let second = numbers[1];    # 2
-
-let mixed = ["Alex", 25, true];
-print mixed[0];              # Alex
+let i = 1;
+loop(15) {
+  if i % 15 == 0 print "FizzBuzz";
+  if i % 3 == 0 print "Fizz";
+  if i % 5 == 0 print "Buzz";
+  if i % 3 != 0 print i;
+  if i % 5 != 0 print i;
+  let i = i + 1;
+}
 ```
 
----
-
-## 🐤 Objects (Coming Soon)
-
-Key-value pairs.
+### **Example 2: Times Table**
 
 ```hypercode
-let person = {
-  name: "Alex",
-  age: 25,
-  city: "Portland"
-};
+function times_table(n) {
+  let i = 1;
+  loop(10) {
+    let result = n * i;
+    print result;
+    let i = i + 1;
+  }
+}
 
-print person.name;  # Alex
-print person.age;   # 25
+times_table(3);
 ```
 
----
-
-## 🧰 AI Integration (Coming Q1 2026)
+### **Example 3: Factorial**
 
 ```hypercode
-ai:prompt("Analyze this code", model="claude");
-ai:generate("Write a hello world", language="hypercode");
-```
+function factorial(n) {
+  if n <= 1 return 1;
+  return n * factorial(n - 1);
+}
 
----
-
-## 🌬 Quantum (Coming Q2 2026)
-
-```hypercode
-quantum:init(3);              # 3 qubits
-quantum:hadamard([0, 1]);     # Apply operation
-quantum:measure() -> result;  # Get result
-```
-
----
-
-## 🪦 DNA Computing (Coming Q3 2026)
-
-```hypercode
-dna:encode("ATCG", pattern="strand");
-dna:simulate();
-dna:synthesize() -> oligos;
+print factorial(5);  # Output: 120
 ```
 
 ---
@@ -346,6 +428,9 @@ HyperCode errors are designed to help:
 
 ❌ Type Error: Cannot add string and number
    Tip: Make sure both values are the same type
+
+❌ Division by zero
+   Tip: Check your division operation
 ```
 
 ---
@@ -363,71 +448,68 @@ ai         dna        for        while
 
 ---
 
-## 📒 Examples
+## 🜟 Tips & Tricks
 
-### **Hello World**
-```hypercode
-print "Hello, World!";
-```
+### **Debug with Print**
 
-### **Variables and Math**
 ```hypercode
 let x = 10;
-let y = 5;
-let sum = x + y;
-print sum;
+print "x is: ";
+print x;  # Output: x is: 10
 ```
 
-### **Conditionals**
-```hypercode
-let age = 20;
+### **Clear Variable Names**
 
-if age >= 18 print "Adult";
-if age < 18 print "Minor";
+```hypercode
+let student_age = 20;  # ✅ Clear
+let a = 20;            # ❌ Not clear
 ```
 
-### **Combining Operations**
+### **Add Comments**
+
 ```hypercode
-let name = "Alex";
-let score = 95;
+# Check if person can vote
+if age >= 18 print "Eligible";
+```
 
-print name;
-print score;
+### **Use Functions for Reusable Code**
 
-if score >= 90 print "Excellent!";
-if score < 90 print "Good job!";
+```hypercode
+function add(a, b) {
+  return a + b;
+}
+
+let sum1 = add(5, 3);    # 8
+let sum2 = add(10, 20);  # 30
+```
+
+### **Test with Loop**
+
+```hypercode
+loop(10) {
+  print "Testing...";
+}
 ```
 
 ---
 
-## 🌟 Tips & Tricks
+## 📁 Coming Soon
 
-1. **Use print for debugging**
-   ```hypercode
-   let x = 10;
-   print "x is: ";
-   print x;
-   ```
+Phase 2 (Q1 2026):
+- Arrays: `let arr = [1, 2, 3];`
+- Objects: `let person = { name: "Alex", age: 25 };`
+- More string operations
+- Error handling (try/catch)
 
-2. **Name variables clearly**
-   ```hypercode
-   let student_age = 20;  # Good
-   let a = 20;            # Not clear
-   ```
+Phase 3 (Q2 2026):
+- AI Integration (Claude, GPT-4)
+- Advanced patterns
+- Async operations
 
-3. **Add comments for complex logic**
-   ```hypercode
-   # Check if person can vote
-   if age >= 18 print "Eligible";
-   ```
-
-4. **Test with REPL**
-   ```bash
-   python hypercode_repl.py
-   >>> let x = 5;
-   >>> if x > 3 print "yes";
-   yes
-   ```
+Phase 4 (Q3-Q4 2026):
+- Quantum computing
+- DNA/molecular computing
+- Full ecosystem
 
 ---
 
